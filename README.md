@@ -20,7 +20,7 @@ Selenium automated test cases for Django
 
 #### Setup:
 
-1). Clone and download the reposity and navigate to org.apache.airavata.django.tests/src/resources
+1). Clone and download the reposity and navigate to org.apache.airavata.django.tests/src/resources/config
 
 2). Specify the following information in the config.properties file
 
