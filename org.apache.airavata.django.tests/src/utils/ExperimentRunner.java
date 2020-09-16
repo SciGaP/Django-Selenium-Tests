@@ -1,5 +1,25 @@
 package utils;
 
+/*
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -9,10 +29,11 @@ import junit.framework.Assert;
 /*
  *Experiment Runner Class 
  * 
- * created on 8/21/2020 by Anna
- * last modifies 8/28/2020 by Anna
+ * created on 8/21/2020
+ * last modified 9/16/2020
  * 
  * Parent class for all tests that submit jobs
+ * 
  * 
  */
 
@@ -23,16 +44,16 @@ import junit.framework.Assert;
  */
 
 public abstract class ExperimentRunner extends DjangoTest{
-	String exp_name, test_project, local_path, walltimeLimit, start_url, expId;
+	String exp_name, test_project, local_path, walltimeLimit, start_url, grp, expId;
 	Boolean cancel_experiments;
 	
 	//runExperiment with wallTimeLimit argument
-	public void runExperiment(WebDriver driver, By applicationBy, String name, String grp, String computeRes, String queue, int wallTimeLimit, String inputDir, String... inputFiles) throws Exception {
+	public void runExperiment(WebDriver driver, By applicationBy, String name, String computeRes, String queue, int wallTimeLimit, String inputDir, String... inputFiles) throws Exception {
 		this.walltimeLimit = Integer.toString(wallTimeLimit);
-		runExperiment(driver, applicationBy, name, grp, computeRes, queue, inputDir, inputFiles);
+		runExperiment(driver, applicationBy, name, computeRes, queue, inputDir, inputFiles);
 	}
 	
-	public void runExperiment(WebDriver driver, By applicationBy, String name, String grp, String computeRes, String queue, String inputDir, String... inputFiles) throws Exception {
+	public void runExperiment(WebDriver driver, By applicationBy, String name, String computeRes, String queue, String inputDir, String... inputFiles) throws Exception {
 		if (walltimeLimit==null){walltimeLimit = "15";}
 		//load variables from properties file
 		try {
@@ -41,6 +62,7 @@ public abstract class ExperimentRunner extends DjangoTest{
 				local_path = readConfigFile("local_path");
 				start_url = readConfigFile("start_url");
 				cancel_experiments = Boolean.parseBoolean(readConfigFile("start_url"));
+				grp = readConfigFile("exp_grp");
 		}catch(Exception e) {
 				throw new Exception(e);
 		}
@@ -88,7 +110,7 @@ public abstract class ExperimentRunner extends DjangoTest{
 		//set queue
 		setQueue(driver, queue);
 		addWait(300);
-		
+	
 		//launch experiment
 		launchExperiment(driver);
 		addWait(200);
@@ -137,7 +159,7 @@ public abstract class ExperimentRunner extends DjangoTest{
 		WebElement element = driver.findElement(By.id("experiment-name"));
 		scrollToElement(element, driver);
 		element.clear();
-		element.sendKeys(exp_name+" "+name+" "+currentTimeAsString());
+		element.sendKeys(exp_name+"_"+name+"_"+currentDateAsString()+"_"+currentTimeAsString());
 	}
 	
 	//select a project
@@ -165,14 +187,12 @@ public abstract class ExperimentRunner extends DjangoTest{
 	//set the group resource profile
 	private void setGRP(WebDriver driver, String grp) throws Exception {
 		WebElement element = driver.findElement(By.id("group-resource-profile"));
-		//scrollToElement(element, driver);
 		attemptClick(element.findElement(By.xpath("//option[. = '"+grp+"']")), driver);
 	}
 	
 	//set the compute resource
 	private void setComputeResource(WebDriver driver, String computeRes) throws Exception {
 		WebElement element = driver.findElement(By.id("compute-resource"));
-		//scrollToElement(element, driver);
 		attemptClick(element.findElement(By.xpath("//option[. = '"+computeRes+"']")), driver);
 	}
 	
@@ -211,7 +231,6 @@ public abstract class ExperimentRunner extends DjangoTest{
 	    	throw new Exception("Experient summary page didn't laod");
 	    }
 	    addWait(200);
-	    /*
 	    //Confirm that experiment Status is set to "Executing"
 	    if (!doesElementExist(driver, By.xpath("//*[contains(text(), 'EXECUTING')]"))) {
 	    	throw new Exception("Experiment status not changed to 'Executing'");
@@ -221,7 +240,6 @@ public abstract class ExperimentRunner extends DjangoTest{
 	    //get experiment id
 	    expId = driver.findElement(By.cssSelector(".table > tr > td:nth-child(2)")).getText();
 	    System.out.println("Experiment ID: "+expId);
-	    */
 	}
 	
 	//share experiment
@@ -266,7 +284,6 @@ public abstract class ExperimentRunner extends DjangoTest{
 		WebElement element;
 	    //edit sharing 	permissions
 		element = driver.findElement(By.xpath("//select[@class='custom-select']"));
-		//scrollToElement(element, driver);
 		attemptClick(element.findElement(By.xpath("//option[. = 'WRITE']")), driver);
 		addWait(200);
 		attemptClick(element.findElement(By.xpath("//option[. = 'READ']")), driver);

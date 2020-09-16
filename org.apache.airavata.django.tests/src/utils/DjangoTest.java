@@ -1,30 +1,53 @@
 package utils;
-import java.io.FileReader;
-import java.io.InputStream;
-import java.util.Calendar;
-import java.util.Enumeration;
-import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
+/*
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
 import org.openqa.selenium.By;
-import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.safari.SafariDriver;
 
 /*
  * DjangoTest Class
  * 
- * created on 8/14/2020 by Anna
- * last modifies 8/28/2020 by Anna
+ * created on 8/14/2020
+ * last modified 9/16/2020
  * 
  * the parent class of Django portal tests
  * 
- * 
+ * Contains the functions:
+ * login: logs into django portal with credentials from properties file
+ * readConfigFile: reads variables from the properties file
+ * addWait: adds a specified wait period
+ * scrollToElement: scrolls to a specific WebElement on a browser
+ * attemptClick: attempts to click on a specific WebElement
+ * currentDateAsString: returns the current date as a string
+ * currentTimeAsString: returns the current time as a string
+ * doesElementExist: determines if a specific WebElement exists
+ * setDriver: determines the specified driver from the properties file
  */
 
 public abstract class DjangoTest {
@@ -93,7 +116,7 @@ public abstract class DjangoTest {
 				scrollToElement(element, driver);
 				element.click();
 				break;
-			}catch (ElementClickInterceptedException e) {
+			}catch (Exception e) {
 				if (time>100) {
 					throw new Exception (e);
 				}
@@ -104,14 +127,54 @@ public abstract class DjangoTest {
 		}
 	}
 	
-	//returns current date and time as a string
+	//function that attempts to click on the specified element
+	public void attemptClick(By by, WebDriver driver) throws Exception {
+		int time = 0;
+		while (true) {
+			try {
+				WebElement element = driver.findElement(by);
+				scrollToElement(element, driver);
+				element.click();
+				break;
+			}catch (Exception e) {
+				if (time>100) {
+					throw new Exception (e);
+				}
+				time++;
+				addWait(300);
+				continue;
+			}
+		}
+	}
+	
+	//returns the current date as string
+	public String currentDateAsString() {
+		Calendar calendar = Calendar.getInstance();
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		int month = calendar.get(Calendar.MONTH);
+		String strMonth = "";
+		switch (month) {
+		case 1: strMonth = "Jan"; break;
+		case 2: strMonth = "Feb"; break;
+		case 3: strMonth = "Mar"; break;
+		case 4: strMonth = "Apr"; break;
+		case 5: strMonth = "May"; break;
+		case 6: strMonth = "Jun"; break;
+		case 7: strMonth = "Jul"; break;
+		case 8: strMonth = "Aug"; break;
+		case 9: strMonth = "Sep"; break;
+		case 10: strMonth = "Oct"; break;
+		case 11: strMonth = "Nov"; break;
+		case 12: strMonth = "Dec"; break;}
+		return strMonth+"_"+Integer.toString(day);
+	}
+	
+	//returns current time as a string
 	public String currentTimeAsString() {
 		Calendar calendar = Calendar.getInstance();
 		int min = calendar.get(Calendar.MINUTE);
 		int hour = calendar.get(Calendar.HOUR_OF_DAY);
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		int month = calendar.get(Calendar.MONTH);;
-		return Integer.toString(month)+"/"+Integer.toString(day)+" "+Integer.toString(hour)+":"+Integer.toString(min);
+		return Integer.toString(hour)+":"+Integer.toString(min);
 	}
 	
 	//check if element exists
@@ -124,7 +187,6 @@ public abstract class DjangoTest {
 		}
 	}
 	
-
 	//function that reads the specified WebDriver type from the properties file and sets the driver to that type
 	public WebDriver setDriver() throws Exception{
 		WebDriver driver;
@@ -146,12 +208,10 @@ public abstract class DjangoTest {
 		default_driver = default_driver.trim();
 		default_driver= default_driver.toLowerCase();
 		
-		if (default_driver.contentEquals("chrome")) {
-			//System.setProperty("webdriver.chrome.driver", local_path+"\\chromedriver.exe");
+		if (default_driver.contentEquals("chrome")) {//set default driver to chrome
 			driver = new ChromeDriver();
 		}
-		else if (default_driver.contentEquals("firefox")) {
-			//System.setProperty("webdriver.gecko.driver", local_path+"\\geckodriver.exe");
+		else if (default_driver.contentEquals("firefox")) {//set default driver to firefox
 			driver = new FirefoxDriver();
 		}
 		else {

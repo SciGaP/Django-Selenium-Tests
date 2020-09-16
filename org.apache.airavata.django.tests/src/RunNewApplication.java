@@ -19,32 +19,33 @@
  */
 
 import static org.junit.jupiter.api.Assertions.*;
-import org.junit.Assert;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
-import utils.DjangoTest;
+import utils.ExperimentRunner;
+import utils.PropertiesLoader;
 
 /*
- *User Logout Class 
+ *Run New Application Class 
  * 
- * created on 8/26/2020
+ * created on 9/2/2020
  * last modified 9/15/2020
  * 
- * class to test user logout on django portal
+ * class to test newly created application on django portal
 */
 
-class UserLogout   extends DjangoTest{
-	WebDriver driver;
-	String start_url;
 
+class RunNewApplication extends ExperimentRunner {
+	WebDriver driver;
+	String app_name;
+	
 	@BeforeEach
-	public void setUp() throws Exception {
+	public
+	void setUp() throws Exception {
 		driver = setDriver();
-		start_url = readConfigFile("start_url");
+		app_name = readConfigFile("app_name");
 	}
 
 	@AfterEach
@@ -53,25 +54,30 @@ class UserLogout   extends DjangoTest{
 	}
 
 	@Test
-	public void test() throws Exception {
-		WebElement element; 
-		//go to the django portal
-		driver.get(start_url);
-		
-		//login
+	public void test() {
 		login(driver);
-		addWait(200);
+		By by = By.xpath("//h2[contains(text(), '"+app_name+"')]");
 		
-		//logout
-		element = driver.findElement(By.id("dropdownMenuButton"));
-	    attemptClick(element, driver);
-	    addWait(200);
-	    attemptClick(driver.findElement(By.linkText("Logout")), driver);
-	    addWait(200);
-	    
-	    //confirm logout
-	    Assert.assertTrue(doesElementExist(driver, By.linkText("Log in")));
-	    addWait(200);
+		//search for new application
+		if (doesElementExist(driver, by)) {
+			//application exists
+			try {
+				//driver, application path, experiment name, compute resource, queue, input files...
+				runExperiment(driver, 
+						by, 
+						app_name+" Comet", 
+						"comet.sdsc.edu",
+						"compute",
+						PropertiesLoader.GAUSSIAN_DIR,
+						PropertiesLoader.GAUSSIAN_INPUT);
+				addWait(200);
+				}catch (Exception e) {
+					System.out.println(e.toString());
+					fail(e.toString());
+				}
+		}
+		//application doesn't exist
+		
 	}
 
 }
