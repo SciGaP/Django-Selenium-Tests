@@ -31,25 +31,30 @@ import utils.DjangoTest;
  * RunTests Class
  * 
  * created on 8/17/2020
- * last modified 9/16/2020
+ * last modified 10/6/2020
  * 
  * this file runs all of the django portal tests
  * 
  */
 
 class RunTests extends DjangoTest {
-	 PrintStream runTestsOutput, console;
-	 String local_path, filename, directory;
+	 PrintStream console;
+	 String local_path;
+	 public int exceptions;
 
 	@BeforeEach
 	public
 	void setUp() throws Exception {
+		exceptions = 0;
 		local_path = readConfigFile("local_path");
-		setOutput();//set output to file instead of command line
+		
+		//set output to file instead of command line
+		setOutput("\\run_tests_output_", console);
 	}
 
 	@AfterEach
 	public void tearDown() throws Exception {
+		System.out.println("Exceptions Thrown: "+Integer.toString(exceptions));
 		if (console!=null) {
 		System.setOut(console);
 		}
@@ -62,14 +67,29 @@ class RunTests extends DjangoTest {
 		//User Logout
 		runTest(new UserLogout(), "User Logout");
 		
-		//Create User
+		//Create New User
 		runTest(new CreateNewUser(), "Create New User");
+
+		//create a new GRP
+		runTest(new GRPCreation(), "GRP Creation");
+		
+		//Edit existing GRP
+		runTest(new EditGRP(), "Edit GRP");
+		
+		//Create a new Project
+		runTest(new ProjectCreation(), "Project Creation");
+		
+		//create and test new application
+		runTest(new CreateNewApplication(), "Create New Application");
+		runTest(new RunNewApplication(), "Run New Application");
+		
+		//Edit an application
+		runTest(new EditApplication(), "Edit Applicatoin");
 		
 		//Abinit Comet
 		runTest(new AbinitComet(), "Abinit Comet");		
 		//Amber Sander Comet
-		runTest(new AmberSanderComet(), "Amber Sander Comet");
-		
+		runTest(new AmberSanderComet(), "Amber Sander Comet");		
 		//Auto Dock Vina Comet
 		runTest(new AutoDockVinaComet(), "AutoDock Vina Comet");
 		//Auto Dock Vina Stampede2
@@ -99,42 +119,36 @@ class RunTests extends DjangoTest {
 		//Vina Multiple Comet
 		runTest(new VinaMultipleComet(), "Vina Multiple Comet");
 		
-		//create and test new application
-		runTest(new CreateNewApplication(), "Create New Application");
-		runTest(new RunNewApplication(), "Run New Application");
-		
 		System.out.println("All Django Portal Tests Complete");
 	}
 	
-	private void runTest(DjangoTest test, String testName) throws Exception {
+	public void runTest(DjangoTest test, String testName) throws Exception {
 		System.out.println("Starting "+testName);
-		test.setUp();
 		try {
+			test.setUp();
 			test.test();
+			test.tearDown();
 		}catch (Exception e) {
 			e.printStackTrace();
+			exceptions++;
 		}
-        test.tearDown();
         System.out.println(testName+" Done");
 	}
 	
-	private void setOutput() throws Exception {
+	public void setOutput(String filename, PrintStream console) throws Exception {
 		//if directory doesn't exist, create a new one
 		
 		String path = local_path+"\\TestLogs";
 		String dir = "\\"+currentDateAsString();
-		System.out.println(path);
-			
-		File file = new File(path);
-		if(!file.mkdir()){
-			//directory not created
-		}
-		file = new File(path+dir);
-		if(!file.mkdir()){
-			//directory not created
-		}
 		
-		filename = path+dir+"\\run_tests_output_"+getRandomString(10)+".log";
+		//create the test log directory if it doesn't already exist
+		File file = new File(path);
+		
+		//create a new directory based on the date if one hasn;t already been created
+		file = new File(path+dir);
+		
+		//create the outputfile
+		filename = path+dir+"\\"+filename+"_"+getRandomString(10)+".log";
 		System.out.println(filename);
 		file = new File(filename);
 		if (!file.createNewFile()) {
@@ -142,13 +156,13 @@ class RunTests extends DjangoTest {
 		}
 
 		//set system print output to file
-		runTestsOutput = new PrintStream(new File(filename));
+		PrintStream testOutput = new PrintStream(new File(filename));
 		console = System.out;//save the console 
-		System.setOut(runTestsOutput);		
+		System.setOut(testOutput);		
 	}
 	
 	//returns a string of random letters and numbers
-	private String getRandomString(int len) {
+	public String getRandomString(int len) {
 		Random r = new Random();
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";//usable characters
         StringBuilder str = new StringBuilder();

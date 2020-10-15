@@ -34,7 +34,7 @@ import org.openqa.selenium.firefox.FirefoxDriver;
  * DjangoTest Class
  * 
  * created on 8/14/2020
- * last modified 9/16/2020
+ * last modified 10/2/2020
  * 
  * the parent class of Django portal tests
  * 
@@ -53,27 +53,17 @@ import org.openqa.selenium.firefox.FirefoxDriver;
 public abstract class DjangoTest {
 	
 	//function that logs into the django portal
-	public void login (WebDriver driver) {
+	public void login (WebDriver driver) throws Exception {
 		String username, password;
-		try {
-			//get values from properties file
-			username = readConfigFile("django_username");
-			password = readConfigFile("django_password");
-		}catch(Exception e){
-			throw new RuntimeException(e);
-		}
-		//check that none of the values are null
-		if (username == null) {
-			throw new RuntimeException("Django username is not in properties file");
-		}
-		else if (password == null) {
-			throw new RuntimeException("Django password is not in properties file");
-		}
+		//get values from properties file
+		username = readConfigFile("django_username");
+		password = readConfigFile("django_password");
+		
 		//trim any whitespace from properties file strings
 		username = username.trim();
 		password = password.trim();
 		
-		
+		//click login button
 		driver.findElement(By.linkText("Log in")).click();//go to login screen
 		
 		//enter username and password
@@ -154,18 +144,18 @@ public abstract class DjangoTest {
 		int month = calendar.get(Calendar.MONTH);
 		String strMonth = "";
 		switch (month) {
-		case 1: strMonth = "Jan"; break;
-		case 2: strMonth = "Feb"; break;
-		case 3: strMonth = "Mar"; break;
-		case 4: strMonth = "Apr"; break;
-		case 5: strMonth = "May"; break;
-		case 6: strMonth = "Jun"; break;
-		case 7: strMonth = "Jul"; break;
-		case 8: strMonth = "Aug"; break;
-		case 9: strMonth = "Sep"; break;
-		case 10: strMonth = "Oct"; break;
-		case 11: strMonth = "Nov"; break;
-		case 12: strMonth = "Dec"; break;}
+		case 0: strMonth = "Jan"; break;
+		case 1: strMonth = "Feb"; break;
+		case 2: strMonth = "Mar"; break;
+		case 3: strMonth = "Apr"; break;
+		case 4: strMonth = "May"; break;
+		case 5: strMonth = "Jun"; break;
+		case 6: strMonth = "Jul"; break;
+		case 7: strMonth = "Aug"; break;
+		case 8: strMonth = "Sep"; break;
+		case 9: strMonth = "Oct"; break;
+		case 10: strMonth = "Nov"; break;
+		case 11: strMonth = "Dec"; break;}
 		return strMonth+"_"+Integer.toString(day);
 	}
 	
@@ -191,25 +181,16 @@ public abstract class DjangoTest {
 	public WebDriver setDriver() throws Exception{
 		WebDriver driver;
 		String default_driver, local_path;
+	
 		//get variables from properties file
-		try {
-			default_driver = readConfigFile("default_driver");
-			local_path = readConfigFile("local_path");
-		}catch(Exception e){
-			throw new RuntimeException(e);
-		}
-		//check for null values
-		if (default_driver == null) {
-			throw new RuntimeException("default driver is not specified in properties file");
-		}
-		if (local_path == null) {
-			throw new RuntimeException("local path is not specified in properties file");
-		}
+		default_driver = readConfigFile("default_driver");
+		local_path = readConfigFile("local_path");
+
 		default_driver = default_driver.trim();
 		default_driver= default_driver.toLowerCase();
 		
 		if (default_driver.contentEquals("chrome")) {//set default driver to chrome
-			driver = new ChromeDriver();
+			driver = new ChromeDriver();			
 		}
 		else if (default_driver.contentEquals("firefox")) {//set default driver to firefox
 			driver = new FirefoxDriver();

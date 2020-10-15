@@ -31,7 +31,7 @@ import utils.DjangoTest;
  * create new user class
  * 
  * created on 8/27/2020
- * last modified 9/16/2020
+ * last modified 9/17/2020
  * 
  * Test creating a new user function
  */

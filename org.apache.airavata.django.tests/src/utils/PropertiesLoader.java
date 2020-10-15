@@ -44,7 +44,11 @@ public class PropertiesLoader {
                 throw new Exception("properties file unreadable");
             }
 			prop.load(stream);
-			return  prop.getProperty(propField);
+			String value = prop.getProperty(propField);
+			if (value == null) {//check for null values
+				throw new Exception(propField+" value is not specified in properties file");
+			}
+			return  value;
 		}catch (Exception e){
             throw new Exception("Error when reading properties file", e);
 		}	

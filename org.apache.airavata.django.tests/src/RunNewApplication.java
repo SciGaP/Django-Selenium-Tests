@@ -31,7 +31,7 @@ import utils.PropertiesLoader;
  *Run New Application Class 
  * 
  * created on 9/2/2020
- * last modified 9/15/2020
+ * last modified 9/17/2020
  * 
  * class to test newly created application on django portal
 */
@@ -54,30 +54,28 @@ class RunNewApplication extends ExperimentRunner {
 	}
 
 	@Test
-	public void test() {
+	public void test() throws Exception {
 		login(driver);
 		By by = By.xpath("//h2[contains(text(), '"+app_name+"')]");
 		
 		//search for new application
 		if (doesElementExist(driver, by)) {
 			//application exists
-			try {
-				//driver, application path, experiment name, compute resource, queue, input files...
-				runExperiment(driver, 
-						by, 
-						app_name+" Comet", 
-						"comet.sdsc.edu",
-						"compute",
-						PropertiesLoader.GAUSSIAN_DIR,
-						PropertiesLoader.GAUSSIAN_INPUT);
-				addWait(200);
-				}catch (Exception e) {
-					System.out.println(e.toString());
-					fail(e.toString());
-				}
-		}
-		//application doesn't exist
 		
+			//driver, application path, experiment name, compute resource, queue, input files...
+			runExperiment(driver, 
+					by, 
+					app_name+" Comet", 
+					"comet.sdsc.edu",
+					"compute",
+					PropertiesLoader.GAUSSIAN_DIR,
+					PropertiesLoader.GAUSSIAN_INPUT);
+			addWait(200);
+			
+		}
+		else {
+			fail("application doesn't exist");
+		}
 	}
 
 }

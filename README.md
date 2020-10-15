@@ -31,6 +31,7 @@ Selenium automated test cases for Django
       -new username, new password, new email, first name, and last name for testing new user creation
       -local path to directory containing input files
       -default driver: chrome, firefox, or safari
+      -share email: an email attached to a django portal accout to use to test sharing capabilities
 
 3). Navigate to org.apache.airavata.django.tests/src/utils make sure that the directorie and file names specified in PropertiesLoader.java match the directory and input file names in the specified local path
 
@@ -43,3 +44,9 @@ Selenium automated test cases for Django
       -LoadTest: tests load capacity of the django portal
       -UserLogout: tests logging out of the django portal
       -CreateUserLogin: tests user creation in the django portal
+      -GRPCreation: tests creation of new GRP in the django portal
+      -EditGRP: tests editing an existing GRP in the django portal
+      -ProjectCreation: tests creation of a new project in the django portal
+      -CreateNewApplication: tests creation of a new application in the django portal
+      -RunNewApplication: runs a newly created application in the django portal
+      -EditApplication: tests editing an existing application in the django portal

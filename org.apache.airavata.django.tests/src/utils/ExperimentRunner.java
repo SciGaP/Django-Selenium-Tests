@@ -30,7 +30,7 @@ import junit.framework.Assert;
  *Experiment Runner Class 
  * 
  * created on 8/21/2020
- * last modified 9/16/2020
+ * last modified 9/18/2020
  * 
  * Parent class for all tests that submit jobs
  * 
@@ -45,8 +45,13 @@ import junit.framework.Assert;
 
 public abstract class ExperimentRunner extends DjangoTest{
 	String exp_name, test_project, local_path, walltimeLimit, start_url, grp, expId;
-	Boolean cancel_experiments;
+	Boolean cancel_experiments, login;
 	
+	//runExperiment with login boolean
+	public void runExperiment(WebDriver driver, Boolean login, By applicationBy, String name, String computeRes, String queue, String inputDir, String... inputFiles) throws Exception {
+		this.login = login;
+		runExperiment(driver, applicationBy, name, computeRes, queue, inputDir, inputFiles);
+	}
 	//runExperiment with wallTimeLimit argument
 	public void runExperiment(WebDriver driver, By applicationBy, String name, String computeRes, String queue, int wallTimeLimit, String inputDir, String... inputFiles) throws Exception {
 		this.walltimeLimit = Integer.toString(wallTimeLimit);
@@ -55,23 +60,24 @@ public abstract class ExperimentRunner extends DjangoTest{
 	
 	public void runExperiment(WebDriver driver, By applicationBy, String name, String computeRes, String queue, String inputDir, String... inputFiles) throws Exception {
 		if (walltimeLimit==null){walltimeLimit = "15";}
+		if (login == null) {login = false;}
+		
 		//load variables from properties file
-		try {
-				exp_name = readConfigFile("experiment_name");
-				test_project = readConfigFile("test_project");
-				local_path = readConfigFile("local_path");
-				start_url = readConfigFile("start_url");
-				cancel_experiments = Boolean.parseBoolean(readConfigFile("start_url"));
-				grp = readConfigFile("exp_grp");
-		}catch(Exception e) {
-				throw new Exception(e);
+		exp_name = readConfigFile("experiment_name");
+		test_project = readConfigFile("test_project");
+		local_path = readConfigFile("local_path");
+		start_url = readConfigFile("start_url");
+		cancel_experiments = Boolean.parseBoolean(readConfigFile("start_url"));
+		grp = readConfigFile("exp_grp");
+		
+		if (login) {
+			//go to the django portal
+			driver.get(start_url);
+			
+			//login
+			login(driver);
+			addWait(300);
 		}
-		//go to the django portal
-		driver.get(start_url);
-				
-		//login
-		login(driver);
-		addWait(300);
 		
 		//go to applications
 		while(true) {
@@ -87,7 +93,7 @@ public abstract class ExperimentRunner extends DjangoTest{
 		addWait(300);
 		
 		//Share experiment
-		shareExperiment(driver);
+		shareExperiment(driver, 2);
 		addWait(300);
 		
 		//choose the experiment project
@@ -125,6 +131,7 @@ public abstract class ExperimentRunner extends DjangoTest{
 		}
 	}
 	
+	//clone experiment
 	public void cloneExperiment(WebDriver driver) throws Exception {
 		
 		//Clone experiment from experiment summary page
@@ -136,6 +143,7 @@ public abstract class ExperimentRunner extends DjangoTest{
 		
 	}
 	
+	//cancel experiment
 	public void cancelExperiment(WebDriver driver) throws Exception {
 		//Cancel experiment from experiment summary page
 		WebElement element = driver.findElement(By.xpath("//button[contains(text(), 'Cancel')]"));
@@ -147,6 +155,43 @@ public abstract class ExperimentRunner extends DjangoTest{
 			throw new Exception("Experiment status not changed to cancel");
 		}
 		addWait(200);
+	}
+	
+	//share experiment, takes a WebDriver and an Integer indicating the index of the save button
+	public void shareExperiment(WebDriver driver, int saveIndex) throws Exception {
+		String share_email = readConfigFile("share_email");
+		String share_group = readConfigFile("share_group");
+		WebElement element;
+		
+		//click share button
+		element = driver.findElement(By.xpath("//button[contains(text(), 'Share')]"));
+		attemptClick(element, driver);
+		
+		//share with a group
+	    driver.findElement(By.xpath("//input[@placeholder='Type to get suggestions...']")).sendKeys(share_group);
+	    attemptClick(driver.findElement(By.xpath("//*[contains(text(), '"+share_group+"')]")), driver);
+	    
+	    //edit sharing 	permissions
+	    cyclePermissions(driver);
+	    
+		//type gateway users
+	    driver.findElement(By.xpath("//input[@placeholder='Type to get suggestions...']")).sendKeys("Gateway Users");
+	    attemptClick(driver.findElement(By.xpath("//*[contains(text(), 'Gateway Users')]")), driver);
+
+	    //edit sharing 	permissions
+	    cyclePermissions(driver);
+		
+	    //share with individual user
+	    element =  driver.findElement(By.xpath("//input[@placeholder='Type to get suggestions...']"));
+	    element.sendKeys(share_email);
+	    attemptClick(driver.findElement(By.xpath("//*[contains(text(), '"+share_email+"')]")), driver);
+
+	    //edit sharing 	permissions
+	    cyclePermissions(driver);
+	    
+	    //click save (there are 3 save buttons present on the page; two are disabled)
+	    element = driver.findElements(By.xpath("//button[contains(text(), 'Save')]")).get(saveIndex);
+	    attemptClick(element, driver);
 	}
 
 	/*#######################################################################################################
@@ -241,44 +286,7 @@ public abstract class ExperimentRunner extends DjangoTest{
 	    expId = driver.findElement(By.cssSelector(".table > tr > td:nth-child(2)")).getText();
 	    System.out.println("Experiment ID: "+expId);
 	}
-	
-	//share experiment
-	private void shareExperiment(WebDriver driver) throws Exception {
-		String share_email = readConfigFile("share_email");
-		String share_group = readConfigFile("share_group");
-		WebElement element;
-		
-		//click share button
-		element = driver.findElement(By.xpath("//button[contains(text(), 'Share')]"));
-		attemptClick(element, driver);
-		
-		//share with a group
-	    driver.findElement(By.xpath("//input[@placeholder='Type to get suggestions...']")).sendKeys(share_group);
-	    attemptClick(driver.findElement(By.xpath("//*[contains(text(), '"+share_group+"')]")), driver);
-	    
-	    //edit sharing 	permissions
-	    cyclePermissions(driver);
-	    
-		//type gateway users
-	    driver.findElement(By.xpath("//input[@placeholder='Type to get suggestions...']")).sendKeys("Gateway Users");
-	    attemptClick(driver.findElement(By.xpath("//*[contains(text(), 'Gateway Users')]")), driver);
 
-	    //edit sharing 	permissions
-	    cyclePermissions(driver);
-		
-	    //share with individual user
-	    element =  driver.findElement(By.xpath("//input[@placeholder='Type to get suggestions...']"));
-	    element.sendKeys(share_email);
-	    attemptClick(driver.findElement(By.xpath("//*[contains(text(), '"+share_email+"')]")), driver);
-
-	    //edit sharing 	permissions
-	    cyclePermissions(driver);
-	    
-	    //click save (there are 3 save buttons present on the page; two are disabled)
-	    element = driver.findElements(By.xpath("//button[contains(text(), 'Save')]")).get(2);
-	    attemptClick(element, driver);
-	}
-	
 	//this function will cycle the permissions of the top most selector
 	private void cyclePermissions(WebDriver driver)  throws Exception {
 		WebElement element;

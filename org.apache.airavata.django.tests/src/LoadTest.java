@@ -19,45 +19,43 @@
  */
 
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.concurrent.TimeUnit;
+import java.io.PrintStream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.safari.SafariDriver;
-
-import utils.DjangoTest;
 
 /*
  *Load Test class 
  * 
  * created on 8/27/2020
- * last modified 9/16/2020
+ * last modified 9/18/2020
  * 
  * java class for load testing of django portal
  * 
  */
 
-class LoadTest extends DjangoTest{
-	WebDriver driver;
+class LoadTest extends RunTests{
 	int load_test_iterations;
-	
+	String local_path;
+	PrintStream console;
 
 	@BeforeEach
-	public
-	void setUp() throws Exception {
+	public void setUp() throws Exception{
+		exceptions = 0;
 		//get variables from properties file
-		try {
-			load_test_iterations = Integer.parseInt(readConfigFile("load_test_iterations"));
-		}catch(Exception e){
-			throw new RuntimeException(e);
-		}
+		local_path = readConfigFile("local_path");
+		load_test_iterations = Integer.parseInt(readConfigFile("load_test_iterations"));
+		
+		//set output to file instead of command line
+		setOutput("\\load_test_outputs_", console);
 	}
 
 	@AfterEach
 	public void tearDown() throws Exception {
+		System.out.println("Exceptions Thrown: "+Integer.toString(exceptions));
+		if (console!=null) {
+			System.setOut(console);
+			}
 	}
 
 	@Test
@@ -100,16 +98,5 @@ class LoadTest extends DjangoTest{
 		}
 		System.out.println("Load Test Complete");
 	}
-
-	private void runTest(DjangoTest test, String testName) throws Exception {
-		System.out.println("Starting "+testName);
-		test.setUp();
-		try {
-			test.test();
-		}catch (Exception e) {
-			e.printStackTrace();
-		}
-        test.tearDown();
-        System.out.println(testName+" Done");
-	}
+	
 }
