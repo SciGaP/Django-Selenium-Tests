@@ -154,11 +154,16 @@ class GRPCreation extends ExperimentRunner{
 	    
 	    //edit time
 	    attemptClick(driver.findElements(By.cssSelector(".vdatetime-input")).get(1), driver);//edit the reservation end time
+	    
 	    addWait(200);
 	    
+	    
+	    
 	    //set end time for next day
-	    int day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)+1;
-	    attemptClick(By.xpath("//span[contains(text(), '"+Integer.toString(day)+"')]"), driver);
+	    //int day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)+1;
+	    //System.out.println(Integer.toString(day));
+	    //attemptClick(By.xpath("//span[contains(text(), '"+Integer.toString(day)+"')]"), driver);
+	    attemptClick(By.xpath("//div[contains(text(), 'Continue')]"), driver);
 	    attemptClick(By.xpath("//div[contains(text(), 'Continue')]"), driver);
 	    addWait(200);
 	    

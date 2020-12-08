@@ -30,7 +30,7 @@ import utils.ExperimentRunner;
  * Project Creation Class
  * 
  * created on 9/16/2020
- * last modified 9/23/2020
+ * last modified 11/16/2020
  * 
  * Class to test the creation of a new Project
  * 
@@ -72,7 +72,7 @@ class ProjectCreation extends ExperimentRunner{
 	    driver.findElement(By.id("project-description")).sendKeys("This project was created using an automated test");
 		
 		//click ok
-	    attemptClick(By.xpath("//button[contains(text(), 'Ok')]"), driver);
+	    attemptClick(By.xpath("//button[contains(text(), 'OK')]"), driver);
 	    
 	    //click on edit
 	    attemptClick(By.xpath("//*[contains(text(), 'Edit')]"), driver);//edits the newest project

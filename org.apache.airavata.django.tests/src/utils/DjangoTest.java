@@ -202,7 +202,6 @@ public abstract class DjangoTest {
 		return driver;
 	}
 
-
 	//junit test functions
 	public void setUp(WebDriver driver, Boolean clone, Boolean cancel) throws Exception{}
 	public void setUp() throws  Exception{}

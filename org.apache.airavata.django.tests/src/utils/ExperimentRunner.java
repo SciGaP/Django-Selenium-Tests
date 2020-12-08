@@ -30,7 +30,7 @@ import junit.framework.Assert;
  *Experiment Runner Class 
  * 
  * created on 8/21/2020
- * last modified 9/18/2020
+ * last modified 11/13/2020
  * 
  * Parent class for all tests that submit jobs
  * 
@@ -60,7 +60,7 @@ public abstract class ExperimentRunner extends DjangoTest{
 	
 	public void runExperiment(WebDriver driver, By applicationBy, String name, String computeRes, String queue, String inputDir, String... inputFiles) throws Exception {
 		if (walltimeLimit==null){walltimeLimit = "15";}
-		if (login == null) {login = false;}
+		if (login == null) {login = true;}
 		
 		//load variables from properties file
 		exp_name = readConfigFile("experiment_name");
@@ -103,6 +103,7 @@ public abstract class ExperimentRunner extends DjangoTest{
 		//upload all input files
 		for (String fileName : inputFiles) {
 			uploadFile(driver, inputDir, fileName);
+			addWait(300);
 		}
 		
 		//choose group resource profile

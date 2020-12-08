@@ -32,7 +32,7 @@ import utils.PropertiesLoader;
  * Gaussian Bridges Class
  * 
  * created on 8/21/2020
- * last modifies 9/15/2020
+ * last modifies 11/13/2020
  * 
  * the Gaussian experiment run on the Bridges resource
  * 
@@ -59,10 +59,11 @@ class GaussianBridges extends ExperimentRunner{
 		
 		//driver, application path, experiment name, compute resource, queue, input files...
 		runExperiment(driver, 
-				By.xpath("//h2[contains(text(), 'Gaussian') and not(contains(text(), '16'))]"),
+				By.xpath("//h2[contains(text(), 'Gaussian') and not(contains(text(), '16')) and not(contains(text(), ' '))]"),
 				"Gaussian Bridges",  
 				"bridges.psc.edu",  
 				"LM",
+				2,
 				PropertiesLoader.GAUSSIAN_DIR,
 				PropertiesLoader.GAUSSIAN_INPUT);
 		}

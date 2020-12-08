@@ -63,7 +63,6 @@ class CreateNewUser extends DjangoTest {
 		String new_email = readConfigFile("new_email");
 		String first_name = readConfigFile("first_name");
 		String last_name = readConfigFile("last_name");
-		String fail_password = readConfigFile("fail_password");
 		
 		//click on create new user
 		attemptClick(driver.findElement(By.linkText("Create Account")), driver);

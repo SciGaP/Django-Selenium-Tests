@@ -33,7 +33,7 @@ import utils.PropertiesLoader;
  * Gaussian Comet Class
  * 
  * created on 8/14/2020
- * last modifies 9/15/2020
+ * last modifies 11/13/2020
  * 
  * the Gaussian experiment run on the Comet resource
  * 
@@ -58,7 +58,7 @@ class GaussianComet extends ExperimentRunner{
 		
 		//driver, experiment name, compute resource, queue, input files...
 		runExperiment(driver, 
-				By.xpath("//h2[contains(text(), 'Gaussian') and not(contains(text(), '16'))]"),
+				By.xpath("//h2[contains(text(), 'Gaussian') and not(contains(text(), '16')) and not(contains(text(), ' '))]"),
 				"Gaussian Comet",   
 				"comet.sdsc.edu",  
 				"compute",
